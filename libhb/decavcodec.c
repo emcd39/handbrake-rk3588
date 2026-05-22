@@ -1473,10 +1473,19 @@ int reinit_video_filters(hb_work_private_t * pv)
         }
         else if (pv->frame->hw_frames_ctx && pv->job->hw_pix_fmt == AV_PIX_FMT_DRM_PRIME)
         {
-            hb_dict_set(settings, "w", hb_value_int(orig_width));
-            hb_dict_set(settings, "h", hb_value_int(orig_height));
-            hb_dict_set(settings, "format", hb_value_string(av_get_pix_fmt_name(pv->job->input_pix_fmt)));
-            hb_avfilter_append_dict(filters, "scale_rkrga", settings);
+            if (pv->title->rotation == HB_ROTATION_0)
+            {
+                hb_dict_set(settings, "w", hb_value_int(orig_width));
+                hb_dict_set(settings, "h", hb_value_int(orig_height));
+                hb_dict_set(settings, "format", hb_value_string(av_get_pix_fmt_name(pv->job->input_pix_fmt)));
+                hb_avfilter_append_dict(filters, "scale_rkrga", settings);
+            }
+            else
+            {
+                // Skip scale_rkrga when rotation is needed - it outputs nv12
+                // but vpp_rkrga expects drm_prime input, causing format mismatch.
+                hb_value_free(&settings);
+            }
         }
         else if (hb_av_can_use_zscale(pv->frame->format,
                                       pv->frame->width, pv->frame->height,
