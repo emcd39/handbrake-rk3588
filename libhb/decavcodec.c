@@ -1473,20 +1473,10 @@ int reinit_video_filters(hb_work_private_t * pv)
         }
         else if (pv->frame->hw_frames_ctx && pv->job->hw_pix_fmt == AV_PIX_FMT_DRM_PRIME)
         {
-            if (pv->title->rotation == HB_ROTATION_0)
-            {
-                hb_dict_set(settings, "w", hb_value_int(orig_width));
-                hb_dict_set(settings, "h", hb_value_int(orig_height));
-                hb_dict_set(settings, "format", hb_value_string(av_get_pix_fmt_name(pv->job->input_pix_fmt)));
-                hb_avfilter_append_dict(filters, "scale_rkrga", settings);
-            }
-            else
-            {
-                // Skip scale_rkrga when rotation is needed to avoid format mismatch.
-                // scale_rkrga outputs nv12 but vpp_rkrga expects drm_prime input,
-                // so the rotation filter handles the frame directly.
-                hb_value_free(&settings);
-            }
+            hb_dict_set(settings, "w", hb_value_int(orig_width));
+            hb_dict_set(settings, "h", hb_value_int(orig_height));
+            hb_dict_set(settings, "format", hb_value_string(av_get_pix_fmt_name(pv->job->input_pix_fmt)));
+            hb_avfilter_append_dict(filters, "scale_rkrga", settings);
         }
         else if (hb_av_can_use_zscale(pv->frame->format,
                                       pv->frame->width, pv->frame->height,
@@ -1709,6 +1699,35 @@ static void filter_video(hb_work_private_t *pv)
         pv->frame->color_trc       = pv->title->color_transfer;
         pv->frame->colorspace      = pv->title->color_matrix;
         pv->frame->color_range     = pv->title->color_range;
+    }
+
+    // RKMPP decoder outputs drm_prime frames that retain the rotation
+    // display matrix. vpp_rkrga filter can't handle the rotation in the
+    // filter chain, so transfer to software and let CPU filters handle it.
+    if (pv->job && pv->title->rotation != HB_ROTATION_0 &&
+        pv->frame->hw_frames_ctx &&
+        pv->job->hw_pix_fmt == AV_PIX_FMT_DRM_PRIME)
+    {
+        AVFrame *sw_frame = av_frame_alloc();
+        if (sw_frame && av_hwframe_transfer_data(sw_frame, pv->frame, 0) == 0)
+        {
+            av_frame_copy_props(sw_frame, pv->frame);
+            // Strip rotation metadata so reinit_video_filters won't
+            // try to add the auto-rotate filter again
+            AVFrameSideData *sd = av_frame_get_side_data(
+                sw_frame, AV_FRAME_DATA_DISPLAYMATRIX);
+            if (sd)
+            {
+                av_frame_remove_side_data(sw_frame, AV_FRAME_DATA_DISPLAYMATRIX);
+            }
+            av_frame_unref(pv->frame);
+            av_frame_move_ref(pv->frame, sw_frame);
+            av_frame_free(&sw_frame);
+        }
+        else
+        {
+            av_frame_free(&sw_frame);
+        }
     }
 
     // J pixel formats are mostly deprecated, however
