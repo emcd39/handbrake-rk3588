@@ -204,23 +204,6 @@ void ghb_finalize_job (GhbValue *settings)
     hb_preset_apply_video(preset, job);
     hb_preset_apply_filters(preset, job);
 
-    // Auto-disable iPod 5G when encoder doesn't support it
-    {
-        const char *mux_id = ghb_dict_get_string(settings, "FileFormat");
-        const hb_container_t *mux = ghb_lookup_container_by_name(mux_id);
-        gint enc = ghb_settings_video_encoder_codec(settings, "VideoEncoder");
-        if (!((mux->format & HB_MUX_MASK_MP4) &&
-              (enc == HB_VCODEC_X264_8BIT)))
-        {
-            GhbValue *dest = ghb_dict_get(job, "Destination");
-            GhbValue *opts = ghb_dict_get(dest, "Options");
-            if (opts != NULL)
-            {
-                ghb_dict_set_bool(opts, "IpodAtom", FALSE);
-            }
-        }
-    }
-
     ghb_value_free(&preset);
 }
 

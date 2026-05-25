@@ -4875,6 +4875,20 @@ ghb_add_job(hb_handle_t *h, GhbValue *job_dict)
     int        sequence_id;
 
     ghb_apply_job_hw_decode_defaults(job_dict);
+
+    // Auto-disable iPod 5G when encoder doesn't support it
+    {
+        GhbValue *video = ghb_dict_get(job_dict, "Video");
+        const char *enc_name = ghb_dict_get_string(video, "Encoder");
+        int vcodec = ghb_lookup_video_encoder_codec(enc_name);
+        GhbValue *dest = ghb_dict_get(job_dict, "Destination");
+        GhbValue *opts = ghb_dict_get(dest, "Options");
+        if (opts != NULL && vcodec != HB_VCODEC_X264_8BIT)
+        {
+            ghb_dict_set_bool(opts, "IpodAtom", FALSE);
+        }
+    }
+
     json_job = hb_value_get_json(job_dict);
     sequence_id = hb_add_json(h, json_job);
     free(json_job);

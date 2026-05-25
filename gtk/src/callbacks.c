@@ -2695,18 +2695,6 @@ ghb_set_title_settings(signal_user_data_t *ud, GhbValue *settings)
 
     ghb_subtitle_set_pref_lang(settings);
 
-    // Auto-disable iPod 5G when encoder doesn't support it
-    {
-        const char *mux_id = ghb_dict_get_string(settings, "FileFormat");
-        const hb_container_t *mux = ghb_lookup_container_by_name(mux_id);
-        gint enc = ghb_settings_video_encoder_codec(settings, "VideoEncoder");
-        if (!((mux->format & HB_MUX_MASK_MP4) &&
-              (enc == HB_VCODEC_X264_8BIT)))
-        {
-            ghb_dict_set_bool(settings, "Mp4iPodCompatible", FALSE);
-        }
-    }
-
     if (title != NULL)
     {
         GhbValue * job_dict, * title_dict;
