@@ -1215,6 +1215,7 @@ void ghb_show_container_options(signal_user_data_t *ud)
     gtk_widget_set_visible(w3, ipod_visible);
     if (!ipod_visible)
     {
+        ghb_dict_set_bool(ud->settings, "Mp4iPodCompatible", FALSE);
         gtk_check_button_set_active(GTK_CHECK_BUTTON(w3), FALSE);
     }
 }
