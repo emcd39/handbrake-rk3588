@@ -1210,8 +1210,13 @@ void ghb_show_container_options(signal_user_data_t *ud)
 
     gtk_widget_set_visible(w1, (mux->format & HB_MUX_MASK_MP4));
     gtk_widget_set_visible(w2, (mux->format & HB_MUX_MASK_MP4));
-    gtk_widget_set_visible(w3, (mux->format & HB_MUX_MASK_MP4) &&
-                               (enc == HB_VCODEC_X264_8BIT));
+    gboolean ipod_visible = (mux->format & HB_MUX_MASK_MP4) &&
+                            (enc == HB_VCODEC_X264_8BIT);
+    gtk_widget_set_visible(w3, ipod_visible);
+    if (!ipod_visible)
+    {
+        gtk_check_button_set_active(GTK_CHECK_BUTTON(w3), FALSE);
+    }
 }
 
 static void
