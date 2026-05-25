@@ -15,8 +15,8 @@
 
 ## 文档导航
 
-- 构建、发布、Docker 使用说明：见 [BUILD_RK3588.md](/E:/projects/HandBrake/BUILD_RK3588.md)
-- RKMPP 接入实现说明：见 [RKMPP_IMPLEMENTATION.md](/E:/projects/HandBrake/RKMPP_IMPLEMENTATION.md)
+- 构建、发布、Docker 使用说明：见 [BUILD_RK3588.md](BUILD_RK3588.md)
+- RKMPP 接入实现说明：见 [RKMPP_IMPLEMENTATION.md](RKMPP_IMPLEMENTATION.md)
 
 ## 当前仓库结构
 
@@ -33,8 +33,8 @@
 
 如果你的目标是“直接用现成镜像”：
 
-1. 参考 [BUILD_RK3588.md](/E:/projects/HandBrake/BUILD_RK3588.md) 里的 Docker 章节。
-2. 使用仓库中的 [docker-compose.yml](/E:/projects/HandBrake/docker-compose.yml) 作为起点。
+1. 参考 [BUILD_RK3588.md](BUILD_RK3588.md) 里的 Docker 章节。
+2. 使用仓库中的 [docker-compose.yml](docker-compose.yml) 作为起点。
 3. 确保宿主机暴露这些设备：
    - `/dev/dri`
    - `/dev/mpp_service`

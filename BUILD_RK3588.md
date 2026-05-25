@@ -65,7 +65,7 @@
   - `/output`
   - `/lib/modules`
 
-仓库内示例见 [docker-compose.yml](/E:/projects/HandBrake/docker-compose.yml)。
+仓库内示例见 [docker-compose.yml](docker-compose.yml)。
 
 ### 推荐环境变量
 
@@ -128,7 +128,7 @@ Docker 镜像不是直接从源码构建 `ghb`，而是：
 
 1. `build-rk3588.yml` 先生成 GTK / CLI bundle
 2. `docker-build.yml` 下载 bundle
-3. [docker/Dockerfile](/E:/projects/HandBrake/docker/Dockerfile) 将 bundle 中的内容复制进运行镜像
+3. [docker/Dockerfile](docker/Dockerfile) 将 bundle 中的内容复制进运行镜像
 
 当前 Dockerfile 额外做了这些运行时准备：
 
