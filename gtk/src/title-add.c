@@ -23,6 +23,7 @@
 #include "audiohandler.h"
 #include "callbacks.h"
 #include "ghb-file-button.h"
+#include "hb-backend.h"
 #include "handbrake/handbrake.h"
 #include "hb-dvd.h"
 #include "jobdict.h"
@@ -165,6 +166,18 @@ validate_settings (signal_user_data_t *ud, GhbValue *settings, gint batch)
 void ghb_finalize_job (GhbValue *settings)
 {
     GhbValue *preset, *job;
+
+    // Auto-disable iPod 5G when encoder doesn't support it
+    {
+        const char *mux_id = ghb_dict_get_string(settings, "FileFormat");
+        const hb_container_t *mux = ghb_lookup_container_by_name(mux_id);
+        gint enc = ghb_settings_video_encoder_codec(settings, "VideoEncoder");
+        if (!((mux->format & HB_MUX_MASK_MP4) &&
+              (enc == HB_VCODEC_X264_8BIT)))
+        {
+            ghb_dict_set_bool(settings, "Mp4iPodCompatible", FALSE);
+        }
+    }
 
     preset = ghb_settings_to_preset(settings);
     job    = ghb_dict_get(settings, "Job");
