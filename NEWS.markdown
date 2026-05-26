@@ -10,6 +10,38 @@ Download available from Microsoft:
 - [For x64 (AMD or Intel CPUs)](https://aka.ms/dotnet/10.0/windowsdesktop-runtime-win-x64.exe)
 - [For Arm64 (Qualcomm or other)](https://aka.ms/dotnet/10.0/windowsdesktop-runtime-win-arm64.exe)
 
+
+## HandBrake 1.12.0
+
+### All platforms
+
+#### Audio
+
+- Renamed "7.1 (5F/2R/LFE)" mixdown to "7.1 (SDDS)" (speaker layout used by Sony Dynamic Digital Sound)
+
+## HandBrake 1.11.2
+
+## HandBrake 1.11.1
+
+### All platforms
+
+#### Audio
+
+- Fixed a crash that could happen when scanning a PCM track in a DVD-Video or Blu-ray 
+
+#### Third-party libraries
+
+- Updated libraries
+  - Jansson 2.15.0 (JSON architecture)
+  - zlib 1.3.2 (general)
+
+### Windows
+
+- Removed dependency on having Microsoft .NET 8 Desktop Runtime installed
+- Fixed the file type selection in the save panel
+- Fixed a number of issues that impacted screen reader tools ability to read combo box controls
+
+
 ## HandBrake 1.11.0
 
 ### All platforms

@@ -132,6 +132,11 @@ static const char * const h264_nvenc_profile_names[] =
     "auto", "baseline", "main", "high", NULL  // "high444p" not supported.
 };
 
+static const char * const h264_nvenc_10bit_profile_names[] =
+{
+    "auto", "high10", NULL
+};
+
 static const char * const h265_nvenc_profile_names[] =
 {
     "auto", "main", NULL
@@ -326,6 +331,7 @@ int encavcodecInit( hb_work_object_t * w, hb_job_t * job )
         {
             switch (job->vcodec) {
                 case HB_VCODEC_FFMPEG_NVENC_H264:
+                case HB_VCODEC_FFMPEG_NVENC_H264_10BIT:
                     hb_log("encavcodecInit: H.264 (Nvidia NVENC)");
                     codec_name = "h264_nvenc";
                     break;
@@ -573,7 +579,8 @@ int encavcodecInit( hb_work_object_t * w, hb_job_t * job )
         // bitrate * fps
         context->bit_rate_tolerance = context->bit_rate * av_q2d(fps) + 1;
 
-        if ( job->vcodec == HB_VCODEC_FFMPEG_NVENC_H264 || job->vcodec == HB_VCODEC_FFMPEG_NVENC_H265 || job->vcodec == HB_VCODEC_FFMPEG_NVENC_H265_10BIT
+        if ( job->vcodec == HB_VCODEC_FFMPEG_NVENC_H264 || job->vcodec == HB_VCODEC_FFMPEG_NVENC_H264_10BIT
+            || job->vcodec == HB_VCODEC_FFMPEG_NVENC_H265 || job->vcodec == HB_VCODEC_FFMPEG_NVENC_H265_10BIT
             || job->vcodec == HB_VCODEC_FFMPEG_NVENC_AV1 || job->vcodec == HB_VCODEC_FFMPEG_NVENC_AV1_10BIT) {
             av_dict_set( &av_opts, "rc", "vbr", 0 );
             hb_log( "encavcodec: encoding at rc=vbr, Bitrate %d", job->vbitrate );
@@ -660,6 +667,7 @@ int encavcodecInit( hb_work_object_t * w, hb_job_t * job )
         }
         //Set constant quality for nvenc
         else if ( job->vcodec == HB_VCODEC_FFMPEG_NVENC_H264 ||
+                  job->vcodec == HB_VCODEC_FFMPEG_NVENC_H264_10BIT ||
                   job->vcodec == HB_VCODEC_FFMPEG_NVENC_H265 ||
                   job->vcodec == HB_VCODEC_FFMPEG_NVENC_H265_10BIT ||
                   job->vcodec == HB_VCODEC_FFMPEG_NVENC_AV1 ||
@@ -935,6 +943,7 @@ int encavcodecInit( hb_work_object_t * w, hb_job_t * job )
         av_dict_set(&av_opts, "forced_idr", "1", 0);
     }
     else if (job->vcodec == HB_VCODEC_FFMPEG_NVENC_H264 ||
+             job->vcodec == HB_VCODEC_FFMPEG_NVENC_H264_10BIT ||
              job->vcodec == HB_VCODEC_FFMPEG_NVENC_H265 ||
              job->vcodec == HB_VCODEC_FFMPEG_NVENC_H265_10BIT ||
              job->vcodec == HB_VCODEC_FFMPEG_NVENC_AV1 ||
@@ -951,6 +960,8 @@ int encavcodecInit( hb_work_object_t * w, hb_job_t * job )
                 av_dict_set(&av_opts, "profile", "main", 0);
             else if (!strcasecmp(job->encoder_profile, "main10"))
                 av_dict_set(&av_opts, "profile", "main10", 0);
+            else if (!strcasecmp(job->encoder_profile, "high10"))
+                av_dict_set(&av_opts, "profile", "high10", 0);
             else if (!strcasecmp(job->encoder_profile, "high"))
                 av_dict_set(&av_opts, "profile", "high", 0);
         }
@@ -1786,6 +1797,7 @@ static int apply_encoder_preset(int vcodec, AVCodecContext *context,
 
 #if HB_PROJECT_FEATURE_NVENC
         case HB_VCODEC_FFMPEG_NVENC_H264:
+        case HB_VCODEC_FFMPEG_NVENC_H264_10BIT:
         case HB_VCODEC_FFMPEG_NVENC_H265:
         case HB_VCODEC_FFMPEG_NVENC_H265_10BIT:
         case HB_VCODEC_FFMPEG_NVENC_AV1:
@@ -1846,6 +1858,7 @@ static int apply_encoder_level(AVCodecContext *context, AVDictionary **av_opts, 
     {
         case HB_VCODEC_FFMPEG_VCE_H264:
         case HB_VCODEC_FFMPEG_NVENC_H264:
+        case HB_VCODEC_FFMPEG_NVENC_H264_10BIT:
         case HB_VCODEC_FFMPEG_MF_H264:
         case HB_VCODEC_FFMPEG_RKMPP_H264:
             level_names = hb_h264_level_names;
@@ -1924,6 +1937,7 @@ static int apply_encoder_level(AVCodecContext *context, AVDictionary **av_opts, 
             if (!strcasecmp(encoder_level, level_names[i]))
             {
                 if (vcodec == HB_VCODEC_FFMPEG_NVENC_H264 ||
+                    vcodec == HB_VCODEC_FFMPEG_NVENC_H264_10BIT ||
                     vcodec == HB_VCODEC_FFMPEG_NVENC_H265 ||
                     vcodec == HB_VCODEC_FFMPEG_NVENC_H265_10BIT ||
                     vcodec == HB_VCODEC_FFMPEG_NVENC_AV1 ||
@@ -2006,6 +2020,7 @@ const char* const* hb_av_preset_get_names(int encoder)
             return hb_vce_av1_preset_names;
 
         case HB_VCODEC_FFMPEG_NVENC_H264:
+        case HB_VCODEC_FFMPEG_NVENC_H264_10BIT:
         case HB_VCODEC_FFMPEG_NVENC_H265:
         case HB_VCODEC_FFMPEG_NVENC_H265_10BIT:
         case HB_VCODEC_FFMPEG_NVENC_AV1:
@@ -2052,6 +2067,8 @@ const char* const* hb_av_profile_get_names(int encoder)
     {
         case HB_VCODEC_FFMPEG_NVENC_H264:
             return h264_nvenc_profile_names;
+        case HB_VCODEC_FFMPEG_NVENC_H264_10BIT:
+            return h264_nvenc_10bit_profile_names;
         case HB_VCODEC_FFMPEG_NVENC_H265:
             return h265_nvenc_profile_names;
         case HB_VCODEC_FFMPEG_NVENC_H265_10BIT:
@@ -2085,6 +2102,7 @@ const char* const* hb_av_level_get_names(int encoder)
     switch (encoder)
     {
         case HB_VCODEC_FFMPEG_NVENC_H264:
+        case HB_VCODEC_FFMPEG_NVENC_H264_10BIT:
         case HB_VCODEC_FFMPEG_MF_H264:
             return hb_h264_level_names;
 
@@ -2134,6 +2152,7 @@ const int* hb_av_get_pix_fmts(int encoder, const char *profile)
         case HB_VCODEC_FFMPEG_NVENC_AV1:
             return nvenc_pix_formats;
 
+        case HB_VCODEC_FFMPEG_NVENC_H264_10BIT:
         case HB_VCODEC_FFMPEG_NVENC_H265_10BIT:
         case HB_VCODEC_FFMPEG_NVENC_AV1_10BIT:
             return nvenc_pix_formats_10bit;

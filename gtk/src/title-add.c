@@ -23,7 +23,6 @@
 #include "audiohandler.h"
 #include "callbacks.h"
 #include "ghb-file-button.h"
-#include "hb-backend.h"
 #include "handbrake/handbrake.h"
 #include "hb-dvd.h"
 #include "jobdict.h"
@@ -102,7 +101,7 @@ validate_settings (signal_user_data_t *ud, GhbValue *settings, gint batch)
     if (!g_file_test(destdir, G_FILE_TEST_IS_DIR))
     {
         ghb_alert_dialog_show(GTK_MESSAGE_ERROR, _("Invalid Destination"),
-                              _("“%s” is is not a valid directory."), destdir);
+                              _("“%s” is not a valid directory."), destdir);
         g_free(destdir);
         return FALSE;
     }
