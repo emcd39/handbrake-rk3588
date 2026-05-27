@@ -82,6 +82,13 @@ static int format_init(hb_filter_object_t *filter, hb_filter_init_t *init)
             hb_dict_set_string(avsettings, "format", format);
             hb_dict_set(avfilter, "scale_cuda", avsettings);
         }
+        else if (init->hw_pix_fmt == AV_PIX_FMT_DRM_PRIME)
+        {
+            hb_dict_set_int(avsettings, "w", init->geometry.width);
+            hb_dict_set_int(avsettings, "h", init->geometry.height);
+            hb_dict_set_string(avsettings, "format", format);
+            hb_dict_set(avfilter, "scale_rkrga", avsettings);
+        }
         else
         {
             hb_dict_set_string(avsettings, "pix_fmts", format);

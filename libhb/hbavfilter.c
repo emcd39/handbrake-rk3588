@@ -574,8 +574,8 @@ void hb_avfilter_combine( hb_list_t * list)
             }
             else
 #endif
-            // Merge rkrga settings into one vpp_rkrga filter to avoid
-            // linking two separate vpp_rkrga instances which fails.
+            // Merge rkrga settings into one vpp_rkrga or scale_rkrga
+            // filter to avoid linking two separate instances which fails.
             if (hb_value_array_get(settings, 0) != NULL)
             {
                 hb_dict_t * avfilter_settings_dict = hb_value_array_get(avfilter->settings, 0);
@@ -586,6 +586,14 @@ void hb_avfilter_combine( hb_list_t * list)
                 {
                     hb_dict_t *av_rkrga = hb_dict_get(avfilter_settings_dict, "vpp_rkrga");
                     hb_dict_t *cur_rkrga = hb_dict_get(cur_settings_dict, "vpp_rkrga");
+                    hb_dict_merge(av_rkrga, cur_rkrga);
+                }
+                else if (cur_settings_dict && avfilter_settings_dict &&
+                         hb_dict_get(avfilter_settings_dict, "scale_rkrga") &&
+                         hb_dict_get(cur_settings_dict, "scale_rkrga"))
+                {
+                    hb_dict_t *av_rkrga = hb_dict_get(avfilter_settings_dict, "scale_rkrga");
+                    hb_dict_t *cur_rkrga = hb_dict_get(cur_settings_dict, "scale_rkrga");
                     hb_dict_merge(av_rkrga, cur_rkrga);
                 }
                 else
